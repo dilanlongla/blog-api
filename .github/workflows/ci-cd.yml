@@ -50,6 +50,6 @@ jobs:
 
       - name: Push Docker image to Docker Hub
         run: |
-          docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-          docker tag my-laravel-app:latest $DOCKER_USERNAME/my-laravel-app:latest
-          docker push $DOCKER_USERNAME/my-laravel-app:latest
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+          docker tag my-laravel-app:latest ${{ secrets.DOCKER_USERNAME }}/my-laravel-app:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/my-laravel-app:latest
