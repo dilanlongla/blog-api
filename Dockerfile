@@ -1,31 +1,41 @@
-# Use official PHP image with FPM (FastCGI Process Manager) and Apache
-FROM php:8.2-fpm
+FROM php:8.2-fpm-alpine as build
 
-# Set working directory inside the container
-WORKDIR /var/www/html
-
-# Install system dependencies and PHP extensions required for Laravel
-RUN apt-get update && apt-get install -y \
+# Install dependencies
+RUN apk add --no-cache \
+    git \
+    unzip \
     libpng-dev \
     libjpeg-dev \
     libfreetype6-dev \
-    zip \
-    git \
-    libonig-dev \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install gd pdo pdo_mysql mbstring
+    && curl -sS https://getcomposer.org/installer | php \
+    && mv composer.phar /usr/local/bin/composer
 
-# Install Composer globally
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+# Set working directory and copy application files
+WORKDIR /app
+COPY . /app
 
-# Copy the Laravel application into the container
-COPY . /var/www/html
-
-# Install dependencies using Composer
+# Install dependencies
 RUN composer install --no-dev --optimize-autoloader
 
-# Expose port 9000 for the PHP-FPM service
-EXPOSE 9000
+# Production Stage
+FROM php:8.2-fpm-alpine
 
-# Command to start PHP-FPM server
+# Set working directory
+WORKDIR /app
+
+# Copy the app from the build stage
+COPY --from=build /app /app
+
+# Install runtime dependencies
+RUN apk add --no-cache \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install gd
+
+# Clean up unnecessary files
+RUN rm -rf /var/lib/apt/lists/*
+
+# Command to run the application
 CMD ["php-fpm"]
