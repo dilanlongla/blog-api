@@ -6,11 +6,13 @@ use PHPUnit\Framework\TestCase;
 
 class PostApiTest extends TestCase
 {
-    /**
-     * A basic unit test example.
-     */
-    public function test_example(): void
+    public function test_post_creation()
     {
-        $this->assertTrue(true);
+        $response = $this->post('/api/posts', [
+            'title' => 'Test Post',
+            'content' => 'This is a test post content.'
+        ]);
+
+        $response->assertStatus(201);
     }
 }
