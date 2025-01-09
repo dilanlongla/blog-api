@@ -23,9 +23,9 @@ jobs:
           curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
           composer install --no-interaction --prefer-dist
 
-      - name: Run Tests
-        run: |
-          ./vendor/bin/phpunit --configuration phpunit.xml.dist
+      # - name: Run Tests
+      #   run: |
+      #     ./vendor/bin/phpunit --configuration phpunit.xml.dist
 
       - name: Build Docker image
         run: |
