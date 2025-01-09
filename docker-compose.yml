@@ -1,0 +1,41 @@
+version: "3"
+
+services:
+    app:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        image: my-laravel-app
+        container_name: app
+        working_dir: /var/www/html
+        volumes:
+            - .:/var/www/html
+        ports:
+            - "8000:9000" # Exposing port 9000 (PHP-FPM) to 8000 (local port)
+        networks:
+            - app-network
+        depends_on:
+            - db
+        environment:
+            - APP_ENV=local
+            - DB_CONNECTION=mysql
+            - DB_HOST=db
+            - DB_PORT=3306
+            - DB_DATABASE=laravel
+            - DB_USERNAME=root
+            - DB_PASSWORD=root
+
+    db:
+        image: mysql:5.7
+        container_name: db
+        environment:
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_DATABASE: laravel
+        ports:
+            - "3306:3306"
+        networks:
+            - app-network
+
+networks:
+    app-network:
+        driver: bridge
