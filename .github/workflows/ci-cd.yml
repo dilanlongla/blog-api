@@ -1,0 +1,43 @@
+name: CI/CD Pipeline action
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.2
+
+      - name: Install dependencies
+        run: |
+          curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+          composer install --no-interaction --prefer-dist
+
+      - name: Run Tests
+        run: |
+          ./vendor/bin/phpunit --configuration phpunit.xml.dist
+
+      - name: Build Docker image
+        run: |
+          docker-compose build
+
+      - name: Run Docker containers (for testing)
+        run: |
+          docker-compose up -d
+          docker-compose exec app php artisan migrate
+
+      - name: Push Docker image to Docker Hub
+        run: |
+          docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+          docker tag my-laravel-app:latest $DOCKER_USERNAME/my-laravel-app:latest
+          docker push $DOCKER_USERNAME/my-laravel-app:latest
