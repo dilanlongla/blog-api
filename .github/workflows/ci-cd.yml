@@ -37,7 +37,7 @@ jobs:
 
       - name: Run Tests
         run: |
-          ./vendor/bin/phpunit --configuration phpunit.xml.dist
+          ./vendor/bin/phpunit --configuration phpunit.xml
 
       - name: Build Docker image
         run: |
