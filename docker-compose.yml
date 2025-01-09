@@ -5,7 +5,7 @@ services:
         build:
             context: .
             dockerfile: Dockerfile
-        image: my-laravel-app
+        image: my-blog-api
         container_name: app
         working_dir: /var/www/html
         volumes:
