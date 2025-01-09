@@ -10,8 +10,6 @@ services:
         working_dir: /var/www/html
         volumes:
             - .:/var/www/html
-        ports:
-            - "8000:9000" # Exposing port 9000 (PHP-FPM) to 8000 (local port)
         networks:
             - app-network
         depends_on:
@@ -33,6 +31,19 @@ services:
             MYSQL_DATABASE: laravel
         ports:
             - "3306:3306"
+        networks:
+            - app-network
+
+    nginx:
+        image: nginx:alpine
+        container_name: nginx
+        ports:
+            - "8000:80"
+        volumes:
+            - .:/var/www/html
+            - ./nginx.conf:/etc/nginx/conf.d/default.conf
+        depends_on:
+            - app
         networks:
             - app-network
 

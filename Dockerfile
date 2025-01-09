@@ -1,12 +1,8 @@
+# Build Stage
 FROM php:8.2-fpm-alpine as build
 
-# Install dependencies
-RUN apk add --no-cache \
-    git \
-    unzip \
-    libpng-dev \
-    libjpeg-turbo-dev \
-    freetype-dev \
+# Install build dependencies
+RUN apk add --no-cache git unzip libpng-dev libjpeg-turbo-dev freetype-dev \
     && curl -sS https://getcomposer.org/installer | php \
     && mv composer.phar /usr/local/bin/composer
 
@@ -14,7 +10,7 @@ RUN apk add --no-cache \
 WORKDIR /app
 COPY . /app
 
-# Install dependencies
+# Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader
 
 # Production Stage
@@ -23,19 +19,16 @@ FROM php:8.2-fpm-alpine
 # Set working directory
 WORKDIR /app
 
-# Copy the app from the build stage
+# Copy built application files from the build stage
 COPY --from=build /app /app
 
 # Install runtime dependencies
-RUN apk add --no-cache \
-    libpng-dev \
-    libjpeg-turbo-dev \
-    freetype-dev \
+RUN apk add --no-cache libpng-dev libjpeg-turbo-dev freetype-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install gd
 
-# Clean up unnecessary files
-RUN rm -rf /var/lib/apt/lists/*
+# Expose port for PHP-FPM
+EXPOSE 9000
 
-# Command to run the application
+# Command to start PHP-FPM
 CMD ["php-fpm"]
