@@ -5,63 +5,31 @@ services:
         build:
             context: .
             dockerfile: Dockerfile
-        image: blog-api
-        container_name: blog_api
-        restart: always
-        working_dir: /var/www/html
+        ports:
+            - "8000:8000"
         volumes:
             - .:/var/www/html
+            - ./storage:/var/www/html/storage
         environment:
-            - APP_ENV=production
-            - APP_DEBUG=false
-            - APP_KEY=base64:YOUR_APP_KEY
-            - DB_CONNECTION=mysql
-            - DB_HOST=db
-            - DB_PORT=3306
-            - DB_DATABASE=laravel
-            - DB_USERNAME=root
-            - DB_PASSWORD=secret
-        depends_on:
-            - db
-        networks:
-            - laravel_net
-        command: php artisan serve --host=0.0.0.0 --port=8000
+            APP_ENV: local
+            APP_DEBUG: true
+            APP_KEY: base64:your-app-key-here
+            DB_CONNECTION: mysql
+            DB_HOST: db
+            DB_PORT: 3306
+            DB_DATABASE: blog
+            DB_USERNAME: root
+            DB_PASSWORD: root
 
     db:
         image: mysql:8.0
-        container_name: mysql_db
-        restart: always
+        ports:
+            - "3306:3306"
         environment:
-            MYSQL_DATABASE: laravel
-            MYSQL_ROOT_PASSWORD: secret
+            MYSQL_DATABASE: blog
+            MYSQL_ROOT_PASSWORD: root
         volumes:
-            - mysql_data:/var/lib/mysql
-        networks:
-            - laravel_net
-
-    artisan:
-        image: blog-api
-        container_name: blog_artisan
-        restart: "no"
-        working_dir: /var/www/html
-        entrypoint: ["php", "artisan"]
-        depends_on:
-            - db
-        networks:
-            - laravel_net
-
-    queue:
-        image: blog-api
-        container_name: blog_queue
-        restart: always
-        command: php artisan queue:work
-        depends_on:
-            - db
-        networks:
-            - laravel_net
+            - db-data:/var/lib/mysql
 
 volumes:
-    mysql_data:
-
-networks:
-    laravel_net:
+    db-data:
