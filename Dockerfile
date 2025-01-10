@@ -1,34 +1,33 @@
-# Build Stage
-FROM php:8.2-fpm-alpine as build
-
-# Install build dependencies
-RUN apk add --no-cache git unzip libpng-dev libjpeg-turbo-dev freetype-dev \
-    && curl -sS https://getcomposer.org/installer | php \
-    && mv composer.phar /usr/local/bin/composer
-
-# Set working directory and copy application files
-WORKDIR /app
-COPY . /app
-
-# Install PHP dependencies
-RUN composer install --no-dev --optimize-autoloader
-
-# Production Stage
-FROM php:8.2-fpm-alpine
+# Use an official PHP image as a base image
+FROM php:8.2-fpm
 
 # Set working directory
-WORKDIR /app
+WORKDIR /var/www/html
 
-# Copy built application files from the build stage
-COPY --from=build /app /app
+# Install necessary system dependencies
+RUN apt-get update && apt-get install -y \
+    libzip-dev \
+    unzip \
+    git \
+    curl \
+    libonig-dev \
+    libpng-dev \
+    && docker-php-ext-install pdo_mysql mbstring zip exif pcntl \
+    && docker-php-ext-enable opcache
 
-# Install runtime dependencies
-RUN apk add --no-cache libpng-dev libjpeg-turbo-dev freetype-dev \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install gd
+# Install Composer
+COPY --from=composer:2.7 /usr/bin/composer /usr/bin/composer
 
-# Expose port for PHP-FPM
+# Copy application files
+COPY . .
+
+# Set appropriate permissions
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html/storage /var/www/html/bootstrap/cache
+
+# Install app dependencies
+RUN composer install --no-dev --optimize-autoloader
+
+# Expose port 9000 and start PHP-FPM
 EXPOSE 9000
-
-# Command to start PHP-FPM
 CMD ["php-fpm"]
