@@ -9,7 +9,8 @@ vendor/
 
 # Ignore environment files
 
-.env
+<!-- .env -->
+
 .env.local
 
 # Ignore Dockerfile and docker-compose files if you don't need them in the image
