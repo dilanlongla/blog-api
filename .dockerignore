@@ -1,0 +1,27 @@
+# Ignore node_modules and vendor directories
+
+node_modules/
+vendor/
+
+# Ignore .git directory
+
+.git/
+
+# Ignore environment files
+
+.env
+.env.local
+
+# Ignore Dockerfile and docker-compose files if you don't need them in the image
+
+Dockerfile
+docker-compose.yml
+
+# Ignore test files
+
+tests/
+
+# Ignore temporary files and logs
+
+_.log
+_.tmp
