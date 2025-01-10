@@ -1,18 +1,21 @@
-# Use an official PHP image as a base image
-FROM php:8.2-fpm
+# Use a smaller Alpine-based PHP image
+FROM php:8.2-fpm-alpine
 
 # Set working directory
 WORKDIR /var/www/html
 
 # Install necessary system dependencies
-RUN apt-get update && apt-get install -y \
+RUN apk update && apk add --no-cache \
     libzip-dev \
     unzip \
     git \
     curl \
-    libonig-dev \
     libpng-dev \
-    && docker-php-ext-install pdo_mysql mbstring zip exif pcntl \
+    libjpeg-turbo-dev \
+    libwebp-dev \
+    libonig-dev \
+    && docker-php-ext-configure zip \
+    && docker-php-ext-install pdo_mysql mbstring zip exif pcntl gd \
     && docker-php-ext-enable opcache
 
 # Install Composer
@@ -26,8 +29,8 @@ RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html/storage /var/www/html/bootstrap/cache
 
 # Install app dependencies
-RUN composer install --no-dev --optimize-autoloader
+RUN composer install --no-dev --optimize-autoloader --prefer-dist
 
-# Expose port 9000 and start PHP-FPM
+# Expose port 9000
 EXPOSE 9000
 CMD ["php-fpm"]
