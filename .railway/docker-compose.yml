@@ -1,0 +1,35 @@
+version: "3.8"
+
+services:
+    app:
+        build:
+            context: .
+        container_name: blog-api-app
+        ports:
+            - "8000:8000"
+        environment:
+            - DB_CONNECTION=mysql
+            - DB_HOST=db
+            - DB_PORT=3306
+            - DB_DATABASE=blog
+            - DB_USERNAME=root
+            - DB_PASSWORD=root
+        depends_on:
+            - db
+        networks:
+            - app-network
+
+    db:
+        image: mysql:8
+        container_name: blog-api-db
+        environment:
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_DATABASE: blog
+        ports:
+            - "3306:3306"
+        networks:
+            - app-network
+
+networks:
+    app-network:
+        driver: bridge
