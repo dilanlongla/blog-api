@@ -2,8 +2,7 @@ version: "3.8"
 
 services:
     app:
-        build:
-            context: .
+        image: dilanlongla/blog-api:latest
         container_name: blog-api-app
         ports:
             - "8000:8000"
